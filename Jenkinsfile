@@ -7,7 +7,7 @@ pipeline{
         jdk 'Java21'
         maven 'Maven3'
     }
-    enviroment{
+    environment{
         APP_NAME = "Ci-Cd-pipeline"
         RELEASE = "1.0.0"
         DOCKER_USER = "nghiant2005"
