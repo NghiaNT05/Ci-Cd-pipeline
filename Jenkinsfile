@@ -28,14 +28,15 @@ pipeline{
                 sh "mvn test"
             } 
         }
-        stage("Sonarqube analysis") {
+       stage("Sonarqube analysis") {
     steps {
-        scripts{
-        withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'jenkins-sonarqube') {
-            sh "mvn sonar:sonar"
+        script {
+            withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'jenkins-sonarqube') {
+                sh "mvn sonar:sonar"
+                    }
+                }
+            }
         }
-        }
-    }
-}
+
     }
 }
