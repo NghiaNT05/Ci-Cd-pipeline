@@ -52,19 +52,18 @@ pipeline{
                     }
                 }
             }
-            stage("Build and push docker image") {
-          steps {
-            script {
-                docker.withRegistry('',DOCKER_PASS){
-                    dokcer_image = docker.build"${IMAGE_NAME}"
-                         }
-                    docker.withRegistry('',DOCKER_PASS){
-                        docker_image.push("${IMAGE_TAG}")
-                        docker_image.push('latest')
+            stage("Build and Push Docker Image") {
+                steps {
+                    script {
+                        docker.withRegistry('', 'dockerhub') {
+                            def dockerImage = docker.build("${IMAGE_NAME}")
+                            dockerImage.push("${IMAGE_TAG}")
+                            dockerImage.push('latest')
                         }
                     }
                 }
             }
+
         }
 
     }
