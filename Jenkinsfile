@@ -13,8 +13,6 @@ pipeline{
                 cleanWs()
             } 
         }
-    }
-    stages{
         stage("Checkout from scm"){
             steps{
                 git branch: 'main',credentialsId: 'github',url: 'https://github.com/NghiaNT05/Ci-Cd-pipeline'
