@@ -6,5 +6,5 @@ FROM eclipse-temurin:17.0.6_10-jdk
 WORKDIR /app
 COPY --from=build /app/target/demoapp.jar  /app/
 EXPOSE 4444
-CMD ["java","-jar","demoapp"] 
+CMD ["java","-jar","demoapp.jar"] 
 
