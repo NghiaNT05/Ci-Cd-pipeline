@@ -46,47 +46,46 @@ pipeline{
                 }
             }
         }
-        stage("Quality Gate") {
-          steps {
-            script {
-                waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube'                    }
-                }
-            }
-	 stage("Trivy Scan") {
-            steps {
-                script {
-		   sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}:${IMAGE_TAG} --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table')
-                }
-            }
-
+        stage("Build Docker Image") {
+    steps {
+        script {
+            docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
         }
+    }
+}
 
-        stage ('Cleanup Artifacts') {
-            steps {
-                script {
-                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
-                }
-            }
+stage("Trivy Scan") {
+    steps {
+        script {
+            sh """
+                docker run -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy image ${IMAGE_NAME}:${IMAGE_TAG} \
+                --no-progress --scanners vuln --exit-code 0 \
+                --severity HIGH,CRITICAL --format table
+            """
         }
+    }
+}
 
-
-             stage("Build & Push Docker Image") {
-            steps {
-                script {
-                    def docker_image = null
-
-                    docker.withRegistry('', 'dockerhub') {
-                        docker_image = docker.build("${IMAGE_NAME}")
-                    }
-
-                    docker.withRegistry('', 'dockerhub') {
-                        docker_image.push("${IMAGE_TAG}")
-                        docker_image.push('latest')
-                    }
-                }
+stage("Push Docker Image") {
+    steps {
+        script {
+            docker.withRegistry('', 'dockerhub') {
+                docker_image.push("${IMAGE_TAG}")
+                docker_image.push('latest')
             }
         }
+    }
+}
+
+stage('Cleanup Artifacts') {
+    steps {
+        script {
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+            sh "docker rmi ${IMAGE_NAME}:latest"
+        }
+    }
+}
               stage("Trigger cd pipeline") {
             steps {
                 script {
